@@ -21,8 +21,6 @@ setup(
     long_description=open(filepath, encoding='utf-8').read(),
     long_description_content_type='text/markdown',
     classifiers=[
-        "Topic :: Software Development :: Server Service",
-        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
@@ -32,13 +30,12 @@ setup(
     keywords='',
     author='Guo Tengda',
     author_email='ttguotengda@foxmail.com',
+    url='https://github.com/GuoTengda1993/easy-flask',
     license='MIT',
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
     install_requires=["Flask>=1.0.0", "flask-restful>=0.3.0"],
-    # test_suite="",
-    # tests_require=['mock'],
     entry_points={
         'console_scripts': [
             'easy-flask = easy_flask:main',
