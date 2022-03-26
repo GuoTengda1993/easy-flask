@@ -4,7 +4,7 @@ Automatic generate a flask server project by command
 # Start
 Install
 ```bash
-pip3 install easy-flask
+pip3 install easy-flask-restful
 ```
 Make a flask server project at current dir:
 ```bash
@@ -13,6 +13,7 @@ easy-flask -n demo_server
 easy-flask --new=demo_server
 
 # start server in debug mode
+cd demo_server
 python3 app.py
 ```
 

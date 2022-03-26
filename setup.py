@@ -15,7 +15,7 @@ with open(_init_file, 'rb') as f:
 filepath = 'README.md'
 
 setup(
-    name='easy-flask',
+    name='easy-flask-restful',
     version=version,
     description="Easy to Make Flask Server",
     long_description=open(filepath, encoding='utf-8').read(),
