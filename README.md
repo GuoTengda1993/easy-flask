@@ -41,7 +41,9 @@ Project structure
 ```
 
 ``api`` - write api files here.
+
 ``internal.error`` - define error info here.
+
 ``app.py`` - start app by this file, you can rename it.
 
 ## Write Api File
