@@ -8,7 +8,7 @@ import os
 import sys
 
 
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 
 def init_args():
@@ -40,28 +40,15 @@ def check_project_name(name: str):
 
 
 def get_path():
-    if 'win' in sys.platform:
-        python3_path = os.getenv('PYTHON')
-        if not python3_path:
-            python3_path = os.getenv('PYTHON3')
-        if python3_path:
-            if 'python3' in python3_path.lower():
-                if 'scripts' in python3_path.lower():
-                    easy_path = os.path.join(os.path.dirname(os.path.dirname(python3_path)),
-                                             'Lib\\site-packages\\easy_flask\\')
-                else:
-                    easy_path = os.path.join(python3_path, 'Lib\\site-packages\\easy_flask\\')
-        else:
-            sys_path = os.getenv('path').split(';')
-            for each in sys_path:
-                if 'python3' in each.lower() and 'scripts' not in each.lower() and 'site-packages' not in each.lower():
-                    python3_path = each
-                    break
-            easy_path = os.path.join(python3_path, 'Lib\\site-packages\\easy_flask\\')
-    elif 'linux' in sys.platform:
-        with os.popen('find /usr/local/ -name easy_flask -type d') as lp:
-            easy_path = lp.read().strip()
-    return easy_path
+    sp_path = ''
+    for p in sys.path:
+        if p.endswith('-packages'):
+            sp_path = p
+            break
+    if not sp_path:
+        return None
+
+    return os.path.join(sp_path, 'easy_flask')
 
 
 def main():
@@ -73,6 +60,10 @@ def main():
 
     curr_dir = os.getcwd()
     easy_path = get_path()
+    if not easy_path:
+        print('ERROR: cannot find easy-flask in python packages')
+        sys.exit(1)
+
     src_dir = os.path.join(easy_path, 'tpl')
     dest_dir = os.path.join(curr_dir, p_name)
 
