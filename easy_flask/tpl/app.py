@@ -15,4 +15,6 @@ app = create_app()
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True, threaded=True)
+    from conf import AppConfig
+    app_conf = AppConfig()
+    app.run(host=app_conf.host, port=app_conf.port, debug=True, threaded=True)

@@ -8,7 +8,7 @@ import os
 import sys
 
 
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 
 
 def init_args():
@@ -40,15 +40,14 @@ def check_project_name(name: str):
 
 
 def get_path():
-    sp_path = ''
+    tpl_path = ''
     for p in sys.path:
-        if p.endswith('-packages'):
-            sp_path = p
+        if not p.endswith('-packages'):
+            continue
+        tpl_path = os.path.join(p, 'easy_flask', 'tpl')
+        if os.path.exists(tpl_path):
             break
-    if not sp_path:
-        return None
-
-    return os.path.join(sp_path, 'easy_flask')
+    return tpl_path
 
 
 def main():
@@ -59,12 +58,10 @@ def main():
         sys.exit(1)
 
     curr_dir = os.getcwd()
-    easy_path = get_path()
-    if not easy_path:
+    src_dir = get_path()
+    if not src_dir:
         print('ERROR: cannot find easy-flask in python packages')
         sys.exit(1)
-
-    src_dir = os.path.join(easy_path, 'tpl')
     dest_dir = os.path.join(curr_dir, p_name)
 
     shutil.copytree(src_dir, dest_dir)

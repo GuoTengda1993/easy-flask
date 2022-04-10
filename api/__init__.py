@@ -14,8 +14,7 @@ from flask.views import MethodViewType
 from flask_restful import Api
 
 
-basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-api_dir = os.path.join(basedir, 'api')
+api_dir = os.path.abspath(os.path.dirname(__file__))
 
 
 class BaseConfig:
