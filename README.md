@@ -15,6 +15,8 @@ easy-flask --new=demo_server
 # start server in debug mode
 cd demo_server
 python3 app.py
+# or
+sh control.sh start|restart|stop
 ```
 
 # Introduce
@@ -30,11 +32,16 @@ Project structure
 │   └── demo
 │       ├── __init__.py
 │       └── demo_api.py
-├── app.py
+├── conf
+│   ├── __init__.py
+│   ├── config.ini
 ├── internal
 │   ├── __init__.py
 │   ├── error.py
 │   └── utils.py
+├── app.py
+├── start.py
+├── control.sh
 └── logs
     └── app.log
 
@@ -45,6 +52,10 @@ Project structure
 ``internal.error`` - define error info here.
 
 ``app.py`` - start app by this file, you can rename it.
+
+``conf`` - config for application
+
+``control.sh`` - run app with command by gunicorn
 
 ## Write Api File
 For example:
