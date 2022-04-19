@@ -15,6 +15,5 @@ app = create_app()
 
 
 if __name__ == '__main__':
-    from conf import AppConfig
-    app_conf = AppConfig()
+    from conf import app_conf
     app.run(host=app_conf.host, port=app_conf.port, debug=True, threaded=True)

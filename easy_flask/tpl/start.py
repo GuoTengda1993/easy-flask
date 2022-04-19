@@ -4,9 +4,7 @@
 """
 import os
 
-from conf import AppConfig
-
-app_conf = AppConfig()
+from conf import app_conf
 
 
 worker_class = app_conf.worker_class
