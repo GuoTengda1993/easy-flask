@@ -6,9 +6,11 @@ import shutil
 import re
 import os
 import sys
+from fnmatch import filter
+from os.path import isdir, join
 
 
-__version__ = '0.4.0'
+__version__ = '0.6.0'
 
 
 def init_args():
@@ -40,14 +42,30 @@ def check_project_name(name: str):
 
 
 def get_path():
-    tpl_path = ''
+    path = ''
     for p in sys.path:
         if not p.endswith('-packages'):
             continue
-        tpl_path = os.path.join(p, 'easy_flask', 'tpl')
-        if os.path.exists(tpl_path):
+        path = os.path.join(p, 'easy_flask')
+        if os.path.exists(path):
             break
-    return tpl_path
+    return path
+
+
+def include_patterns(*patterns):
+    """Factory function that can be used with copytree() ignore parameter.
+
+    Arguments define a sequence of glob-style patterns
+    that are used to specify what files to NOT ignore.
+    Creates and returns a function that determines this for each directory
+    in the file hierarchy rooted at the source directory when used with
+    shutil.copytree().
+    """
+    def _ignore_patterns(path, names):
+        keep = set(name for pattern in patterns for name in filter(names, pattern))
+        ignore = set(name for name in names if name not in keep and not isdir(join(path, name)))
+        return ignore
+    return _ignore_patterns
 
 
 def main():
@@ -64,6 +82,6 @@ def main():
         sys.exit(1)
     dest_dir = os.path.join(curr_dir, p_name)
 
-    shutil.copytree(src_dir, dest_dir)
+    shutil.copytree(src_dir, dest_dir, ignore=include_patterns('*.py', '*.ini', '*.sh'))
     print('flask project create success, enjoy~')
     sys.exit(0)

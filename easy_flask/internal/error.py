@@ -7,19 +7,23 @@
 class BaseError(object):
     errno = 1
     code = 500
-    error_info = 'error:'
+    error_info = 'error'
 
     def __init__(self, msg: str = ''):
-        self.msg = self.error_info + msg
+        msg = self.error_info + ':' + msg if msg else self.error_info
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
 
 
 class InternalServerError(BaseError):
     errno = 1
     code = 500
-    error_info = 'internal server error:'
+    error_info = 'internal server error'
 
 
 class ParamsError(BaseError):
     errno = 2
     code = 240
-    error_info = 'params error:'
+    error_info = 'params error'

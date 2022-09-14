@@ -5,6 +5,7 @@
 from flask import g
 
 from internal import Resource
+from utils.parser import Type, Required, Default, Min, Max
 
 
 class DemoApi(Resource):
@@ -12,13 +13,13 @@ class DemoApi(Resource):
     uri = ['/api/demo']
 
     def get(self):
-        req_p = {
-            'num': {'type': int, 'min': 10, 'max': 100},
-            'print': {'type': str, 'required': True},
-            'default': {'type': str, 'default': 'demo'}
+        pattern = {
+            'num': {Type: int, Min: 10, Max: 100},
+            'print': {Type: str, Required: True},
+            'default': {Type: str, Default: 'demo'}
         }
 
-        data, err = self.parse_request_data(req_pattern=req_p)
+        data, err = self.parse_request_data(pattern=pattern)
         if err:
             g.logger.warning(err)
             return err

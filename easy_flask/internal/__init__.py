@@ -10,7 +10,7 @@ from flask.views import MethodView
 from werkzeug.wrappers import Response as ResponseBase
 
 from internal.error import BaseError
-from internal import utils
+from utils.parser import parser
 
 
 def unpack(value):
@@ -79,60 +79,29 @@ class Resource(MethodView):
         res = json.dumps(data, ensure_ascii=False)
         return Response(res, status=code, content_type='application/json')
 
-    def parse_request_data(self, req_pattern: Union[dict, None] = None):
+    def parse_request_data(self, pattern: Union[dict, None] = None, remove_redundant: bool = False):
         """get and parse request data
 
-        :param req_pattern: use to define attrs of each params,
-            eg: {
-                    "name": {"type": str, "required": true},
-                    "nickname": {"type": str, "default": "zhangsan"},
-                    "age": {"type": int, "required": true, "min": 1, "max": 200}
-                }
+        :param pattern: use to define attrs of each params
+        :param remove_redundant: remove keys in data but not in pattern
         :return:
         """
         data = dict()
         args = request.args.to_dict()
         if args:
             data.update(args)
+        if 'form' in request.content_type:
+            form = request.form.to_dict()
+            if form:
+                data.update(form)
+        elif 'json' in request.content_type:
+            body = request.json
+            if body:
+                data.update(body)
 
-        form = request.form.to_dict()
-        if form:
-            data.update(form)
-
-        body = request.json
-        if body:
-            data.update(body)
-
-        if req_pattern:
-            for k, v in req_pattern.items():
-                t = v.get('type')
-                if t is None:
-                    continue
-                # parse request data
-                if data.get(k):
-                    if type(data[k]) == t:
-                        continue
-                    if t == int:
-                        data[k] = utils.parse_to_int(data[k])
-                    elif t == float:
-                        data[k] = utils.parse_to_float(data[k])
-                    elif t == dict:
-                        data[k] = utils.json_loads(data[k])
-                    elif t == str:
-                        data[k] = utils.parse_to_str(data[k])
-                # check required param
-                if v.get('required') and data.get(k) is None:
-                    return data, error.ParamsError(k)
-                # check num min and max
-                if t == int or t == float:
-                    if v.get('min'):
-                        if not isinstance(data.get(k), (int, float)) or data[k] < v['min']:
-                            return data, error.ParamsError('%s check min invalid' % k)
-                    if v.get('max'):
-                        if not isinstance(data.get(k), (int, float)) or data[k] > v['max']:
-                            return data, error.ParamsError('%s check max invalid' % k)
-                # set default
-                if data.get(k) is None and v.get('default') is not None:
-                    data[k] = v['default']
+        if pattern:
+            data, err = parser(data=data, pattern=pattern, remove_redundant=remove_redundant)
+            if err:
+                return None, error.ParamsError(err)
 
         return data, None

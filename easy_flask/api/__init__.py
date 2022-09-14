@@ -10,12 +10,12 @@ from importlib import import_module
 import inspect
 
 from flask import Flask, g
-from flask.views import MethodViewType
+from flask.views import MethodView
 from flask_restful import Api
 
 
 basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-api_dir = os.path.join(basedir, 'api')
+api_dir = os.path.abspath(os.path.dirname(__file__))
 
 
 class BaseConfig:
@@ -84,5 +84,5 @@ def register_apis(api):
                 module = import_module(imp_file)
                 class_list = inspect.getmembers(module, inspect.isclass)
                 for c in class_list:
-                    if type(c[1]) == MethodViewType and c[0] != 'Resource':
+                    if type(c[1] == MethodView) and c[0] != 'Resource':
                         api.add_resource(c[1], *c[1].uri)
