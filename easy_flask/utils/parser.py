@@ -4,6 +4,7 @@
 """
 import json
 from json.decoder import JSONDecodeError
+from typing import Union
 
 
 Type = 'type'  # param type: str, int, float, dict, list, bool
@@ -16,26 +17,40 @@ In = 'in'  # check value in
 Not = 'not'  # check value not
 
 
-def parse_to_int(s):
+def parse_to_int(s, minimum: Union[None, int] = None, maximum: Union[None, int] = None):
     """parse unknown data to int, return None when exception
 
     :param s:
+    :param minimum: check min if set
+    :param maximum: check max if set
     :return:
     """
     try:
-        return int(s)
+        tmp = int(s)
+        if minimum is not None and tmp < minimum:
+            return None
+        if maximum is not None and tmp > maximum:
+            return None
+        return tmp
     except ValueError or TypeError:
         return None
 
 
-def parse_to_float(s):
+def parse_to_float(s, minimum: Union[None, float] = None, maximum: Union[None, float] = None):
     """parse unknown data to float, return None when exception
 
     :param s:
+    :param minimum: check min if set
+    :param maximum: check max if set
     :return:
     """
     try:
-        return float(s)
+        tmp = float(s)
+        if minimum is not None and tmp < minimum:
+            return None
+        if maximum is not None and tmp > maximum:
+            return None
+        return tmp
     except ValueError or TypeError:
         return None
 
@@ -88,9 +103,13 @@ def parser(data: dict, pattern: dict, remove_redundant: bool = False):
             if type(data[k]) == t:
                 continue
             if t == int:
-                data[k] = parse_to_int(data[k])
+                data[k] = parse_to_int(data[k], minimum=v.get(Min), maximum=v.get(Max))
+                if data[k] is None:
+                    return None, 'key[%s] parse int error, or check min|max error' % k
             elif t == float:
-                data[k] = parse_to_float(data[k])
+                data[k] = parse_to_float(data[k], minimum=v.get(Min), maximum=v.get(Max))
+                if data[k] is None:
+                    return None, 'key[%s] parse float error, or check min|max error' % k
             elif t == dict:
                 data[k] = json_loads(data[k])
             elif t == str:
@@ -115,14 +134,6 @@ def parser(data: dict, pattern: dict, remove_redundant: bool = False):
         if v.get(Required) and data.get(k) is None:
             return None, '%s is required' % k
 
-        # check num min and max
-        if t == int or t == float:
-            if v.get(Min):
-                if not isinstance(data.get(k), (int, float)) or data[k] < v['min']:
-                    return None, '%s check min invalid' % k
-            if v.get(Max):
-                if not isinstance(data.get(k), (int, float)) or data[k] > v['max']:
-                    return None, '%s check max invalid' % k
         # check in
         if v.get(In):
             if t == list:
