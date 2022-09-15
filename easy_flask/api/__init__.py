@@ -2,12 +2,14 @@
 """init app
 
 """
-import logging
-import os
-from logging.handlers import RotatingFileHandler
-from uuid import uuid4
 from importlib import import_module
 import inspect
+import logging
+from logging.handlers import RotatingFileHandler
+import os
+from typing import List
+from uuid import uuid4
+
 
 from flask import Flask, g
 from flask.views import MethodView
@@ -20,7 +22,7 @@ api_dir = os.path.abspath(os.path.dirname(__file__))
 
 class BaseConfig:
     """project config
-
+    
     """
     SECRET_KEY = os.getenv('SECRET_KEY', 'easy-flask-demo')
 
@@ -62,12 +64,7 @@ def create_app():
     return app
 
 
-def register_logging(app):
-    """
-
-    :param app:
-    :return:
-    """
+def register_logging(app: Flask):
     logging.logThreads = 0
     logging.logProcesses = 0
     logging.logMultiprocessing = 0
@@ -80,13 +77,13 @@ def register_logging(app):
     app.logger.addHandler(file_handler)
     
     
-def add_resource(app: Flask, resource: MethodViewType, urls: List[str]):
+def add_resource(app: Flask, resource: MethodView, urls: List[str]):
     for url in urls:
         print(url)
         app.add_url_rule(url, view_func=resource.as_view(resource.__name__.lower()))
 
 
-def register_apis(app):
+def register_apis(app: Flask):
     """register api from files from api dir
 
     :param api:
