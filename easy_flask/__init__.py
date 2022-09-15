@@ -10,7 +10,7 @@ from fnmatch import filter
 from os.path import isdir, join
 
 
-__version__ = '0.8.0'
+__version__ = '0.9.0'
 
 
 def init_args():
@@ -80,8 +80,12 @@ def main():
     if not src_dir:
         print('ERROR: cannot find easy-flask in python packages')
         sys.exit(1)
+    
     dest_dir = os.path.join(curr_dir, p_name)
-
     shutil.copytree(src_dir, dest_dir, ignore=include_patterns('*.py', '*.ini', '*.sh'))
+    
+    useless_file = os.path.join(dest_dir, '__init__.py')
+    os.remove(useless_file)
+    
     print('flask project create success, enjoy~')
     sys.exit(0)
