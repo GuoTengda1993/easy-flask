@@ -11,7 +11,7 @@ import inspect
 
 from flask import Flask, g
 from flask.views import MethodView
-from flask_restful import Api
+from werkzeug.exceptions import HTTPException
 
 
 basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
@@ -32,10 +32,9 @@ def create_app():
     """
     app = Flask('easy-flask')
     app.config.from_object(BaseConfig)
-    api = Api(app)
 
     register_logging(app)
-    register_apis(api)
+    register_apis(app)
 
     @app.before_request
     def setup():
@@ -45,6 +44,20 @@ def create_app():
         """
         g.log_id = uuid4().hex
         g.logger = logging.LoggerAdapter(app.logger, extra={'log_id': g.log_id})
+
+    @app.errorhandler(HTTPException)
+    def handle_exception(e):
+        """Return JSON instead of HTML for HTTP errors."""
+        # start with the correct headers and status code from the error
+        response = e.get_response()
+        # replace the body with JSON
+        response.data = json.dumps({
+            "errno": e.code,
+            "msg": "[%s] %s" % (e.name, e.description),
+            "log_id": g.log_id
+        })
+        response.content_type = "application/json"
+        return response
 
     return app
 
@@ -65,9 +78,15 @@ def register_logging(app):
     file_handler.setLevel(log_level)
     app.logger.setLevel(log_level)
     app.logger.addHandler(file_handler)
+    
+    
+def add_resource(app: Flask, resource: MethodViewType, urls: List[str]):
+    for url in urls:
+        print(url)
+        app.add_url_rule(url, view_func=resource.as_view(resource.__name__.lower()))
 
 
-def register_apis(api):
+def register_apis(app):
     """register api from files from api dir
 
     :param api:
@@ -85,4 +104,4 @@ def register_apis(api):
                 class_list = inspect.getmembers(module, inspect.isclass)
                 for c in class_list:
                     if type(c[1] == MethodView) and c[0] != 'Resource':
-                        api.add_resource(c[1], *c[1].uri)
+                        add_resource(app, c[1], c[1].uri)

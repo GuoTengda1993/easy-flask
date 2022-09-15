@@ -36,7 +36,7 @@ setup(
     include_package_data=True,
     package_data={'easy_flask': ['conf/config.ini', 'control.sh']},
     zip_safe=False,
-    install_requires=["Flask>=1.0.0", "flask-restful>=0.3.0"],
+    install_requires=["Flask>=2.2.0"],
     entry_points={
         'console_scripts': [
             'easy-flask = easy_flask:main',
