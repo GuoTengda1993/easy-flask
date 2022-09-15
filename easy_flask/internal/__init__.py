@@ -90,14 +90,15 @@ class Resource(MethodView):
         args = request.args.to_dict()
         if args:
             data.update(args)
-        if 'form' in request.content_type:
-            form = request.form.to_dict()
-            if form:
-                data.update(form)
-        elif 'json' in request.content_type:
-            body = request.json
-            if body:
-                data.update(body)
+        if request.content_type:
+            if 'form' in request.content_type:
+                form = request.form.to_dict()
+                if form:
+                    data.update(form)
+            elif 'json' in request.content_type:
+                body = request.json
+                if body:
+                    data.update(body)
 
         if pattern:
             data, err = parser(data=data, pattern=pattern, remove_redundant=remove_redundant)
