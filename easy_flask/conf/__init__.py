@@ -28,6 +28,8 @@ class BaseConfig(object):
                         v = int(v)
                     elif isinstance(default_val, float):
                         v = float(v)
+                    elif isinstance(default_val, bool):
+                        v = True if default_val in ['true', 'True', 'TRUE'] else False
                 except ValueError:
                     v = default_val
             setattr(self, k, v)
