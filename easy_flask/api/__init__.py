@@ -11,7 +11,7 @@ from typing import List
 from uuid import uuid4
 
 
-from flask import Flask, g
+from flask import Flask, g, json
 from flask.views import MethodView
 from werkzeug.exceptions import HTTPException
 
