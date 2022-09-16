@@ -15,6 +15,8 @@ from flask import Flask, g
 from flask.views import MethodView
 from werkzeug.exceptions import HTTPException
 
+from conf import app_config
+
 
 basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 api_dir = os.path.abspath(os.path.dirname(__file__))
@@ -24,7 +26,7 @@ class BaseConfig:
     """project config
     
     """
-    SECRET_KEY = os.getenv('SECRET_KEY', 'easy-flask-demo')
+    SECRET_KEY = app_config.sk
 
 
 def create_app():
