@@ -12,7 +12,11 @@ from uuid import uuid4
 
 
 from flask import Flask, g, json
-from flask.views import MethodView
+# MethodViewType is removed in flask 2.x
+try:
+    from flask.views import MethodViewType as MethodView
+except ImportError:
+    from flask.views import MethodView
 from werkzeug.exceptions import HTTPException
 
 from conf import app_config
@@ -81,7 +85,6 @@ def register_logging(app: Flask):
     
 def add_resource(app: Flask, resource: MethodView, urls: List[str]):
     for url in urls:
-        print(url)
         app.add_url_rule(url, view_func=resource.as_view(resource.__name__.lower()))
 
 
