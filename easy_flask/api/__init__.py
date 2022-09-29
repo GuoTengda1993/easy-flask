@@ -85,7 +85,8 @@ def register_logging(app: Flask):
     
 def add_resource(app: Flask, resource: MethodView, urls: List[str]):
     for url in urls:
-        app.add_url_rule(url, view_func=resource.as_view(resource.__name__.lower()))
+        name = resource.__name__.lower() + url.replace('/', '_')
+        app.add_url_rule(url, view_func=resource.as_view(name))
 
 
 def register_apis(app: Flask):
