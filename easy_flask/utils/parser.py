@@ -32,7 +32,7 @@ def parse_to_int(s, minimum: Union[None, int] = None, maximum: Union[None, int] 
         if maximum is not None and tmp > maximum:
             return None
         return tmp
-    except ValueError or TypeError:
+    except (ValueError, TypeError):
         return None
 
 
@@ -51,7 +51,7 @@ def parse_to_float(s, minimum: Union[None, float] = None, maximum: Union[None, f
         if maximum is not None and tmp > maximum:
             return None
         return tmp
-    except ValueError or TypeError:
+    except (ValueError, TypeError):
         return None
 
 
@@ -77,7 +77,7 @@ def json_loads(s):
         return s
     try:
         return json.loads(s)
-    except JSONDecodeError or TypeError:
+    except (JSONDecodeError, TypeError):
         return None
 
 
