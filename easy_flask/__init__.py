@@ -10,7 +10,7 @@ from fnmatch import filter
 from os.path import isdir, join
 
 
-__version__ = '1.1.2'
+__version__ = '1.1.3'
 
 
 def init_args():
