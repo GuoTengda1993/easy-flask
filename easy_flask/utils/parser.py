@@ -1,6 +1,35 @@
 #!/usr/bin/env python3
-"""utils
+"""parser
+Usage, for example:
 
+request:
+GET /api?name=xyz&age=10&extra={\"likes\": \"a,b,c,d\"}
+parse to data ==>
+{
+    "name": "xyz",
+    "age": 10,
+    "extra": {
+        "class": "a",
+        "likes": ["a", "b", "c", "d"]
+    }
+}
+
+# -*- code -*-
+from flask import request
+from easy_flask.utils.parser import parser, Required, Type, Min, Max, Split, Pattern, In, Default
+
+extra_pattern = {
+    "class": {Type: str, Default: "a", In: ["a", "b", "c"]},
+    "likes": {Type: list, Split: ","}
+}
+pattern = {
+    "name": {Type: str, Required: True},
+    "age": {Type: int, Required: True, Min: 1, Max: 200},
+    "extra": {Type: dict, Required: True}
+}
+
+data, err = parser(data=request.args.to_dict(), pattern=pattern)
+...
 """
 import json
 from json.decoder import JSONDecodeError
@@ -15,6 +44,7 @@ Max = 'max'  # check max if param type is int or float
 Split = 'split'  # auto split str to list
 In = 'in'  # check value in
 Not = 'not'  # check value not
+Pattern = 'pattern'  # if Type is dict or list, parse pattern for dict or each item(dict) in list
 
 
 def parse_to_int(s, minimum: Union[None, int] = None, maximum: Union[None, int] = None):
@@ -100,8 +130,6 @@ def parser(data: dict, pattern: dict, remove_redundant: bool = False):
             continue
         # parse request data
         if data.get(k):
-            if type(data[k]) == t:
-                continue
             if t == int:
                 data[k] = parse_to_int(data[k], minimum=v.get(Min), maximum=v.get(Max))
                 if data[k] is None:
@@ -112,6 +140,12 @@ def parser(data: dict, pattern: dict, remove_redundant: bool = False):
                     return None, 'key[%s] parse float error, or check min|max error' % k
             elif t == dict:
                 data[k] = json_loads(data[k])
+                if v.get(Pattern):
+                    if not data[k]:
+                        return None, 'key[%s] parse dict null or empty' % k
+                    tmp, err = parser(data=data[k], pattern=v[Pattern])
+                    if err:
+                        return None, 'key[%s] parse dict error: %s' % (k, err)
             elif t == str:
                 tmp = parse_to_str(data[k])
                 if v.get(Split):
@@ -122,6 +156,17 @@ def parser(data: dict, pattern: dict, remove_redundant: bool = False):
                     data[k] = data[k].split(v[Split])
                 else:
                     data[k] = json_loads(data[k])
+                    if v.get(Pattern):
+                        if not isinstance(data[k], list):
+                            return None, 'key[%s] parse list error, not list' % k
+                        if len(data[k]) > 0:
+                            tmp_list = []
+                            for item in data[k]:
+                                tmp, err = parser(data=item, pattern=v[Pattern])
+                                if err:
+                                    return None, 'key[%s] parse list error, item parse error: %s' % (k, err)
+                                tmp_list.append(tmp)
+                            data[k] = tmp_list
             elif t == bool:
                 if data[k] in ['true', 'True', 'TRUE', 1, '1']:
                     data[k] = True
