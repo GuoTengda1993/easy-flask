@@ -25,7 +25,7 @@ extra_pattern = {
 pattern = {
     "name": {Type: str, Required: True},
     "age": {Type: int, Required: True, Min: 1, Max: 200},
-    "extra": {Type: dict, Required: True}
+    "extra": {Type: dict, Required: True, Pattern=extra_pattern}
 }
 
 data, err = parser(data=request.args.to_dict(), pattern=pattern)
